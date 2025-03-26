@@ -1,0 +1,63 @@
+@model IEnumerable<CSHarpC1.Models.Teacher>
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<h1>Teacher List</h1>
+<table>
+    <thead>
+    <tr>
+        <th>Teacher ID</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Employee Number</th>
+        <th>Hire Date</th>
+        <th>Salary</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var teacher in Model)
+    {
+        <tr>
+            <td>@teacher.TeacherId</td>
+            <td>@teacher.TeacherFName</td>
+            <td>@teacher.TeacherLName</td>
+            <td>@teacher.EmployeeNumber</td>
+            <td>@(teacher.HireDate.HasValue ? teacher.HireDate.Value.ToShortDateString() : "N/A")</td>
+            <td>@teacher.Salary</td>
+            <td>
+                <a asp-controller="TeacherPage" asp-action="Show" asp-route-id="@teacher.TeacherId">View</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<style>
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+    
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+    
+    th {
+        background-color: #f2f2f2;
+    }
+    
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    
+    a {
+        text-decoration: none;
+        color: #0066cc;
+    }
+    
+    a:hover {
+        text-decoration: underline;
+    }
+</style>

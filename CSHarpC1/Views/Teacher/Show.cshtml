@@ -1,0 +1,12 @@
+@model CSHarpC1.Models.Teacher
+
+<h1>Teacher Details</h1>
+<p><strong>ID:</strong> @Model.TeacherId</p>
+<p><strong>Name:</strong> @Model.TeacherFName @Model.TeacherLName</p>
+<p><strong>Employee Number:</strong> @Model.EmployeeNumber</p>
+<p><strong>Hire Date:</strong> @(Model.HireDate.HasValue ? Model.HireDate.Value.ToShortDateString() : "N/A")</p>
+<p><strong>Salary:</strong> @Model.Salary</p>
+
+<div>
+    <a asp-controller="TeacherPage" asp-action="List">Back to List</a>
+</div>

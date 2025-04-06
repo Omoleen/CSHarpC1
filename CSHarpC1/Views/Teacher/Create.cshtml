@@ -1,0 +1,94 @@
+@model CSHarpC1.Models.Teacher
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<h1>Add New Teacher</h1>
+
+<form asp-action="Create" method="post">
+    <div class="validation-summary">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    </div>
+    
+    <div class="form-group">
+        <label asp-for="TeacherFName">First Name:</label>
+        <input asp-for="TeacherFName" class="form-control" />
+        <span asp-validation-for="TeacherFName" class="text-danger"></span>
+    </div>
+    
+    <div class="form-group">
+        <label asp-for="TeacherLName">Last Name:</label>
+        <input asp-for="TeacherLName" class="form-control" />
+        <span asp-validation-for="TeacherLName" class="text-danger"></span>
+    </div>
+    
+    <div class="form-group">
+        <label asp-for="EmployeeNumber">Employee Number:</label>
+        <input asp-for="EmployeeNumber" class="form-control" />
+        <span asp-validation-for="EmployeeNumber" class="text-danger"></span>
+    </div>
+    
+    <div class="form-group">
+        <label asp-for="HireDate">Hire Date:</label>
+        <input asp-for="HireDate" type="date" class="form-control" />
+        <span asp-validation-for="HireDate" class="text-danger"></span>
+    </div>
+    
+    <div class="form-group">
+        <label asp-for="Salary">Salary:</label>
+        <input asp-for="Salary" type="number" step="0.01" class="form-control" />
+        <span asp-validation-for="Salary" class="text-danger"></span>
+    </div>
+    
+    <div class="form-group">
+        <label asp-for="TeacherWorkPhone">Work Phone:</label>
+        <input asp-for="TeacherWorkPhone" class="form-control" />
+        <span asp-validation-for="TeacherWorkPhone" class="text-danger"></span>
+    </div>
+    
+    <div class="form-group">
+        <input type="submit" value="Create" class="btn btn-primary" />
+        <a asp-action="List" class="btn btn-secondary">Back to List</a>
+    </div>
+</form>
+
+<style>
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    .form-control {
+        display: block;
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+    
+    label {
+        display: block;
+        margin-bottom: 5px;
+    }
+    
+    .text-danger {
+        color: red;
+    }
+    
+    .btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        margin-right: 5px;
+    }
+    
+    .btn-primary {
+        background-color: #0066cc;
+        color: white;
+    }
+    
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+</style> 

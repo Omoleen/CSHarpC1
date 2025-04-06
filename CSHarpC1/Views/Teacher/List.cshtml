@@ -2,6 +2,26 @@
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
 <h1>Teacher List</h1>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<p>
+    <a asp-controller="TeacherPage" asp-action="Create" class="btn btn-primary">Add New Teacher</a>
+    <a asp-controller="TeacherPage" asp-action="AddAjax" class="btn btn-info">Add Teacher (AJAX)</a>
+</p>
+
 <table>
     <thead>
     <tr>
@@ -11,6 +31,7 @@
         <th>Employee Number</th>
         <th>Hire Date</th>
         <th>Salary</th>
+        <th>Work Phone</th>
         <th>Actions</th>
     </tr>
     </thead>
@@ -22,10 +43,19 @@
             <td>@teacher.TeacherFName</td>
             <td>@teacher.TeacherLName</td>
             <td>@teacher.EmployeeNumber</td>
-            <td>@(teacher.HireDate.HasValue ? teacher.HireDate.Value.ToShortDateString() : "N/A")</td>
-            <td>@teacher.Salary</td>
+            <td>@(teacher.HireDate?.ToShortDateString() ?? "N/A")</td>
+            <td>$@teacher.Salary.ToString("F2")</td>
+            <td>@(string.IsNullOrEmpty(teacher.TeacherWorkPhone) ? "N/A" : teacher.TeacherWorkPhone)</td>
             <td>
-                <a asp-controller="TeacherPage" asp-action="Show" asp-route-id="@teacher.TeacherId">View</a>
+                <a asp-controller="TeacherPage" asp-action="Show" asp-route-id="@teacher.TeacherId">
+                    View
+                </a> |
+                <a asp-controller="TeacherPage" asp-action="Delete" asp-route-id="@teacher.TeacherId" class="text-danger">
+                    Delete
+                </a> |
+                <a asp-controller="TeacherPage" asp-action="DeleteAjax" asp-route-id="@teacher.TeacherId" class="text-warning">
+                    Delete (AJAX)
+                </a>
             </td>
         </tr>
     }
@@ -59,5 +89,32 @@
     
     a:hover {
         text-decoration: underline;
+    }
+    
+    .text-danger {
+        color: #dc3545;
+    }
+    
+    .btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn-primary {
+        background-color: #0066cc;
+        color: white;
+    }
+    
+    .btn-info {
+        background-color: #17a2b8;
+        color: white;
+    }
+    
+    .text-warning {
+        color: #ffc107;
     }
 </style>

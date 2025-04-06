@@ -1,0 +1,90 @@
+@model CSHarpC1.Models.Teacher
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<h1>Confirm Delete</h1>
+
+<div class="alert alert-danger">
+    <h3>Are you sure you want to delete this teacher?</h3>
+    <p>This action cannot be undone.</p>
+</div>
+
+<div class="teacher-details">
+    <h4>Teacher Details</h4>
+    <dl>
+        <dt>ID:</dt>
+        <dd>@Model.TeacherId</dd>
+        
+        <dt>Name:</dt>
+        <dd>@Model.TeacherFName @Model.TeacherLName</dd>
+        
+        <dt>Employee Number:</dt>
+        <dd>@Model.EmployeeNumber</dd>
+        
+        <dt>Hire Date:</dt>
+        <dd>@(Model.HireDate?.ToShortDateString() ?? "N/A")</dd>
+        
+        <dt>Salary:</dt>
+        <dd>$@Model.Salary.ToString("F2")</dd>
+        
+        @if (!string.IsNullOrEmpty(Model.TeacherWorkPhone))
+        {
+            <dt>Work Phone:</dt>
+            <dd>@Model.TeacherWorkPhone</dd>
+        }
+    </dl>
+</div>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" name="id" value="@Model.TeacherId" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a asp-action="List" class="btn btn-secondary">Cancel</a>
+</form>
+
+<style>
+    .alert {
+        padding: 15px;
+        margin-bottom: 20px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+    }
+    
+    .alert-danger {
+        color: #721c24;
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+    }
+    
+    .teacher-details {
+        margin-bottom: 20px;
+    }
+    
+    dl {
+        display: grid;
+        grid-template-columns: 150px 1fr;
+        gap: 10px;
+    }
+    
+    dt {
+        font-weight: bold;
+    }
+    
+    .btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        margin-right: 5px;
+    }
+    
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+    
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+</style> 

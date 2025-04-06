@@ -6,6 +6,10 @@
 <p><strong>Employee Number:</strong> @Model.EmployeeNumber</p>
 <p><strong>Hire Date:</strong> @(Model.HireDate.HasValue ? Model.HireDate.Value.ToShortDateString() : "N/A")</p>
 <p><strong>Salary:</strong> @Model.Salary</p>
+@if (!string.IsNullOrEmpty(Model.TeacherWorkPhone))
+{
+    <p><strong>Work Phone:</strong> @Model.TeacherWorkPhone</p>
+}
 
 <div>
     <a asp-controller="TeacherPage" asp-action="List">Back to List</a>

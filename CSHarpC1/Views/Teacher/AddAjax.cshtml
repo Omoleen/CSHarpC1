@@ -1,0 +1,229 @@
+@model CSHarpC1.Models.Teacher
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<h1>Add New Teacher <span class="ajax-badge">AJAX Mode</span></h1>
+
+<div id="errorSummary" class="alert alert-danger" style="display:none;"></div>
+<div id="successMessage" class="alert alert-success" style="display:none;"></div>
+
+<form id="addTeacherForm" class="ajax-form">
+    <div class="form-group">
+        <label for="teacherFName">First Name:</label>
+        <input id="teacherFName" name="TeacherFName" class="form-control" />
+        <span id="teacherFNameError" class="text-danger"></span>
+    </div>
+    
+    <div class="form-group">
+        <label for="teacherLName">Last Name:</label>
+        <input id="teacherLName" name="TeacherLName" class="form-control" />
+        <span id="teacherLNameError" class="text-danger"></span>
+    </div>
+    
+    <div class="form-group">
+        <label for="employeeNumber">Employee Number:</label>
+        <input id="employeeNumber" name="EmployeeNumber" class="form-control" />
+        <span id="employeeNumberError" class="text-danger"></span>
+    </div>
+    
+    <div class="form-group">
+        <label for="hireDate">Hire Date:</label>
+        <input id="hireDate" name="HireDate" type="date" class="form-control" />
+        <span id="hireDateError" class="text-danger"></span>
+    </div>
+    
+    <div class="form-group">
+        <label for="salary">Salary:</label>
+        <input id="salary" name="Salary" type="number" step="0.01" class="form-control" />
+        <span id="salaryError" class="text-danger"></span>
+    </div>
+    
+    <div class="form-group">
+        <label for="teacherWorkPhone">Work Phone:</label>
+        <input id="teacherWorkPhone" name="TeacherWorkPhone" class="form-control" />
+        <span id="teacherWorkPhoneError" class="text-danger"></span>
+    </div>
+    
+    <div class="form-group">
+        <button type="button" id="submitButton" class="btn btn-primary">Create</button>
+        <a asp-action="List" class="btn btn-secondary">Back to List</a>
+    </div>
+</form>
+
+@section Scripts {
+    <script src="~/js/teacherAjax.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('addTeacherForm');
+            const submitButton = document.getElementById('submitButton');
+            
+            submitButton.addEventListener('click', async function(e) {
+                e.preventDefault();
+                
+                // Clear previous error messages
+                clearErrors();
+                
+                // Get form data
+                const teacher = {
+                    teacherFName: document.getElementById('teacherFName').value,
+                    teacherLName: document.getElementById('teacherLName').value,
+                    employeeNumber: document.getElementById('employeeNumber').value,
+                    hireDate: document.getElementById('hireDate').value || null,
+                    salary: parseFloat(document.getElementById('salary').value) || 0,
+                    teacherWorkPhone: document.getElementById('teacherWorkPhone').value
+                };
+                
+                try {
+                    // Validate form
+                    if (!validateForm(teacher)) return;
+                    
+                    // Send data to API
+                    const response = await teacherApi.add(teacher);
+                    
+                    // Show success message
+                    document.getElementById('successMessage').textContent = 'Teacher added successfully!';
+                    document.getElementById('successMessage').style.display = 'block';
+                    
+                    // Clear form
+                    form.reset();
+                    
+                    // Redirect after short delay
+                    setTimeout(() => {
+                        window.location.href = '@Url.Action("List", "TeacherPage")';
+                    }, 2000);
+                    
+                } catch (error) {
+                    document.getElementById('errorSummary').textContent = error.message;
+                    document.getElementById('errorSummary').style.display = 'block';
+                }
+            });
+            
+            function validateForm(teacher) {
+                let isValid = true;
+                
+                // First name validation
+                if (!teacher.teacherFName) {
+                    document.getElementById('teacherFNameError').textContent = 'First name is required';
+                    isValid = false;
+                }
+                
+                // Last name validation
+                if (!teacher.teacherLName) {
+                    document.getElementById('teacherLNameError').textContent = 'Last name is required';
+                    isValid = false;
+                }
+                
+                // Employee number validation
+                if (!teacher.employeeNumber) {
+                    document.getElementById('employeeNumberError').textContent = 'Employee number is required';
+                    isValid = false;
+                } else if (!/^T\d+$/.test(teacher.employeeNumber)) {
+                    document.getElementById('employeeNumberError').textContent = 'Employee number must be "T" followed by digits';
+                    isValid = false;
+                }
+                
+                // Hire date validation
+                if (teacher.hireDate) {
+                    const hireDate = new Date(teacher.hireDate);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    
+                    if (hireDate > today) {
+                        document.getElementById('hireDateError').textContent = 'Hire date cannot be in the future';
+                        isValid = false;
+                    }
+                }
+                
+                return isValid;
+            }
+            
+            function clearErrors() {
+                document.getElementById('errorSummary').style.display = 'none';
+                document.getElementById('successMessage').style.display = 'none';
+                document.getElementById('teacherFNameError').textContent = '';
+                document.getElementById('teacherLNameError').textContent = '';
+                document.getElementById('employeeNumberError').textContent = '';
+                document.getElementById('hireDateError').textContent = '';
+                document.getElementById('salaryError').textContent = '';
+                document.getElementById('teacherWorkPhoneError').textContent = '';
+            }
+        });
+    </script>
+}
+
+<style>
+    .ajax-badge {
+        background-color: #17a2b8;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.8em;
+        vertical-align: middle;
+    }
+    
+    .ajax-form {
+        background-color: #f8f9fa;
+        border-left: 5px solid #17a2b8;
+        padding: 20px;
+        border-radius: 5px;
+    }
+    
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    .form-control {
+        display: block;
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+    
+    label {
+        display: block;
+        margin-bottom: 5px;
+    }
+    
+    .text-danger {
+        color: red;
+    }
+    
+    .btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        margin-right: 5px;
+    }
+    
+    .btn-primary {
+        background-color: #0066cc;
+        color: white;
+    }
+    
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+    
+    .alert {
+        padding: 15px;
+        margin-bottom: 20px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+    }
+    
+    .alert-danger {
+        color: #721c24;
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+    }
+    
+    .alert-success {
+        color: #155724;
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+    }
+</style> 

@@ -1,0 +1,70 @@
+@model CSHarpC1.Models.Teacher
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Edit Teacher";
+}
+
+<h1>Edit Teacher</h1>
+<hr />
+
+<form asp-action="Edit" asp-route-id="@Model.TeacherId" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+    
+    @* Include the TeacherId as a hidden field so it's submitted back *@
+    <input type="hidden" asp-for="TeacherId" /> 
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group mb-3">
+                <label asp-for="TeacherFName" class="control-label">First Name</label>
+                <input asp-for="TeacherFName" class="form-control" />
+                <span asp-validation-for="TeacherFName" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="TeacherLName" class="control-label">Last Name</label>
+                <input asp-for="TeacherLName" class="form-control" />
+                <span asp-validation-for="TeacherLName" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="EmployeeNumber" class="control-label">Employee Number</label>
+                <input asp-for="EmployeeNumber" class="form-control" />
+                <span asp-validation-for="EmployeeNumber" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-6">
+             <div class="form-group mb-3">
+                <label asp-for="HireDate" class="control-label">Hire Date</label>
+                <input asp-for="HireDate" type="date" class="form-control" />
+                <span asp-validation-for="HireDate" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="Salary" class="control-label">Salary</label>
+                <input asp-for="Salary" type="number" step="0.01" class="form-control" />
+                <span asp-validation-for="Salary" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="TeacherWorkPhone" class="control-label">Work Phone (Optional)</label>
+                <input asp-for="TeacherWorkPhone" class="form-control" />
+                <span asp-validation-for="TeacherWorkPhone" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group mt-3">
+        <input type="submit" value="Save Changes" class="btn btn-success" />
+        <a asp-action="List" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+
+
+<style>
+     .control-label { font-weight: bold; }
+     .form-control { width: 100%; padding: .375rem .75rem; font-size: 1rem; line-height: 1.5; border: 1px solid #ced4da; border-radius: .25rem; }
+     .text-danger { color: #dc3545; font-size: .875em; }
+     .mb-3 { margin-bottom: 1rem !important; }
+     .mt-3 { margin-top: 1rem !important; }
+     .btn { display: inline-block; font-weight: 400; text-align: center; vertical-align: middle; user-select: none; border: 1px solid transparent; padding: .375rem .75rem; font-size: 1rem; line-height: 1.5; border-radius: .25rem; transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out; }
+    .btn-success { color: #fff; background-color: #28a745; border-color: #28a745; }
+    .btn-secondary { color: #fff; background-color: #6c757d; border-color: #6c757d; }
+</style> 

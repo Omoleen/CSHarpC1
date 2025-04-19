@@ -196,6 +196,111 @@ namespace CSHarpC1.Controllers
         }
 
         /// <summary>
+        /// Updates an existing teacher in the database.
+        /// Corresponds to PUT /api/TeacherAPI/{id}
+        /// </summary>
+        /// <param name="id">The ID of the teacher to update.</param>
+        /// <param name="teacher">A Teacher object containing the updated information.</param>
+        /// <returns>
+        /// 204 No Content if the update is successful.
+        /// 400 Bad Request if the provided ID does not match the ID in the request body.
+        /// 400 Bad Request if the employee number is already taken by another teacher.
+        /// 404 Not Found if the teacher with the specified ID does not exist.
+        /// 500 Internal Server Error if a database error occurs.
+        /// </returns>
+        /// <example>
+        /// PUT /api/TeacherAPI/5
+        /// Request Body: { "teacherId": 5, "teacherFName": "Jessica", "teacherLName": "Morris Updated", ... }
+        /// </example>
+        [HttpPut("{id}")]
+        public IActionResult UpdateTeacher(int id, [FromBody] Teacher teacher)
+        {
+            // Check if the ID in the URL matches the ID in the request body
+            if (id != teacher.TeacherId)
+            {
+                return BadRequest(new { message = "ID mismatch between URL and request body." });
+            }
+
+            try
+            {
+                using (var conn = _dbContext.AccessDatabase())
+                {
+                    conn.Open();
+
+                    // 1. Check if the teacher exists
+                    string checkExistQuery = "SELECT COUNT(*) FROM teachers WHERE teacherid = @id";
+                    using (var checkExistCmd = new MySqlCommand(checkExistQuery, conn))
+                    {
+                        checkExistCmd.Parameters.AddWithValue("@id", id);
+                        int existCount = Convert.ToInt32(checkExistCmd.ExecuteScalar());
+                        if (existCount == 0)
+                        {
+                            // Initiative: Server Error Handling on Update (Non-Existent)
+                            return NotFound(new { message = $"Teacher with ID {id} not found." });
+                        }
+                    }
+
+                    // 2. Check if the employee number is already taken by another teacher
+                    string checkDuplicateQuery = "SELECT COUNT(*) FROM teachers WHERE employeenumber = @employeenumber AND teacherid != @id";
+                    using (var checkDuplicateCmd = new MySqlCommand(checkDuplicateQuery, conn))
+                    {
+                        checkDuplicateCmd.Parameters.AddWithValue("@employeenumber", teacher.EmployeeNumber);
+                        checkDuplicateCmd.Parameters.AddWithValue("@id", id);
+                        int duplicateCount = Convert.ToInt32(checkDuplicateCmd.ExecuteScalar());
+                        if (duplicateCount > 0)
+                        {
+                            return BadRequest(new { message = "Employee number is already taken by another teacher." });
+                        }
+                    }
+
+                    // 3. Perform the update
+                    string query = @"UPDATE teachers SET 
+                                    teacherfname = @teacherfname, 
+                                    teacherlname = @teacherlname, 
+                                    employeenumber = @employeenumber, 
+                                    hiredate = @hiredate, 
+                                    salary = @salary, 
+                                    teacherworkphone = @teacherworkphone 
+                                WHERE teacherid = @id";
+
+                    using (var cmd = new MySqlCommand(query, conn))
+                    {
+                        // Add parameters
+                        cmd.Parameters.AddWithValue("@teacherfname", teacher.TeacherFName);
+                        cmd.Parameters.AddWithValue("@teacherlname", teacher.TeacherLName);
+                        cmd.Parameters.AddWithValue("@employeenumber", teacher.EmployeeNumber);
+                        cmd.Parameters.AddWithValue("@hiredate", teacher.HireDate ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@salary", teacher.Salary);
+                        cmd.Parameters.AddWithValue("@teacherworkphone", teacher.TeacherWorkPhone ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@id", id); // Use the ID from the URL parameter
+
+                        int rowsAffected = cmd.ExecuteNonQuery();
+
+                        if (rowsAffected > 0)
+                        {
+                            return NoContent(); // Standard successful PUT response
+                        }
+                        else
+                        {
+                            // Should ideally be caught by the existence check, but good to have a fallback
+                            return NotFound(new { message = $"Teacher with ID {id} could not be updated (possibly already deleted)." });
+                        }
+                    }
+                }
+            }
+            catch (MySqlException ex)
+            {
+                // Log the exception details (omitted for brevity)
+                return StatusCode(500, new { message = "Database error during update.", details = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                // Log the exception details (omitted for brevity)
+                return StatusCode(500, new { message = "An error occurred during update.", details = ex.Message });
+            }
+        }
+
+        /// <summary>
         /// Deletes a teacher from the database by their ID
         /// </summary>
         /// <param name="id">The unique identifier of the teacher to delete</param>

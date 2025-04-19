@@ -1,0 +1,198 @@
+@model CSHarpC1.Models.Teacher
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Edit Teacher (AJAX)";
+}
+
+<h1>Edit Teacher <span class="ajax-badge">AJAX Mode</span></h1>
+<hr />
+
+<div id="errorSummaryEdit" class="alert alert-danger" style="display:none;"></div>
+<div id="successMessageEdit" class="alert alert-success" style="display:none;"></div>
+
+<form id="editTeacherForm" class="ajax-form">
+    @* Include the TeacherId as a hidden field *@
+    <input type="hidden" id="teacherId" name="TeacherId" value="@Model.TeacherId" />
+
+     <div class="row">
+        <div class="col-md-6">
+            <div class="form-group mb-3">
+                <label for="teacherFNameEdit" class="control-label">First Name</label>
+                <input id="teacherFNameEdit" name="TeacherFName" class="form-control" value="@Model.TeacherFName"/>
+                <span id="teacherFNameEditError" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label for="teacherLNameEdit" class="control-label">Last Name</label>
+                <input id="teacherLNameEdit" name="TeacherLName" class="form-control" value="@Model.TeacherLName"/>
+                <span id="teacherLNameEditError" class="text-danger"></span>
+            </div>
+             <div class="form-group mb-3">
+                <label for="employeeNumberEdit" class="control-label">Employee Number</label>
+                <input id="employeeNumberEdit" name="EmployeeNumber" class="form-control" value="@Model.EmployeeNumber"/>
+                <span id="employeeNumberEditError" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-6">
+             <div class="form-group mb-3">
+                <label for="hireDateEdit" class="control-label">Hire Date</label>
+                <input id="hireDateEdit" name="HireDate" type="date" class="form-control" value="@(Model.HireDate?.ToString("yyyy-MM-dd"))"/>
+                <span id="hireDateEditError" class="text-danger"></span>
+            </div>
+             <div class="form-group mb-3">
+                <label for="salaryEdit" class="control-label">Salary</label>
+                <input id="salaryEdit" name="Salary" type="number" step="0.01" class="form-control" value="@Model.Salary.ToString("F2")"/>
+                <span id="salaryEditError" class="text-danger"></span>
+            </div>
+             <div class="form-group mb-3">
+                <label for="teacherWorkPhoneEdit" class="control-label">Work Phone (Optional)</label>
+                <input id="teacherWorkPhoneEdit" name="TeacherWorkPhone" class="form-control" value="@Model.TeacherWorkPhone"/>
+                <span id="teacherWorkPhoneEditError" class="text-danger"></span>
+            </div>
+        </div>
+     </div>
+
+    <div class="form-group mt-3">
+        <button type="button" id="submitEditButton" class="btn btn-success">Save Changes</button>
+        <a asp-action="List" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+
+@section Scripts {
+    <script src="~/js/teacherAjax.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('editTeacherForm');
+            const submitButton = document.getElementById('submitEditButton');
+            const teacherId = document.getElementById('teacherId').value; // Get the teacher ID
+
+            submitButton.addEventListener('click', async function(e) {
+                e.preventDefault();
+                clearEditErrors(); // Clear previous errors
+
+                // Gather updated data
+                const updatedTeacher = {
+                    teacherId: parseInt(teacherId), // Ensure ID is included and is a number
+                    teacherFName: document.getElementById('teacherFNameEdit').value,
+                    teacherLName: document.getElementById('teacherLNameEdit').value,
+                    employeeNumber: document.getElementById('employeeNumberEdit').value,
+                    hireDate: document.getElementById('hireDateEdit').value || null,
+                    salary: parseFloat(document.getElementById('salaryEdit').value) || 0,
+                    teacherWorkPhone: document.getElementById('teacherWorkPhoneEdit').value || null
+                };
+
+                 // Initiative: Client-side validation
+                 if (!validateEditForm(updatedTeacher)) {
+                     document.getElementById('errorSummaryEdit').textContent = 'Please correct the errors below.';
+                     document.getElementById('errorSummaryEdit').style.display = 'block';
+                     return; // Stop submission if validation fails
+                 }
+
+                try {
+                    // Call the update API function
+                    await teacherApi.update(teacherId, updatedTeacher);
+
+                    // Show success message
+                    document.getElementById('successMessageEdit').textContent = 'Teacher updated successfully!';
+                    document.getElementById('successMessageEdit').style.display = 'block';
+                    document.getElementById('errorSummaryEdit').style.display = 'none'; // Hide error summary on success
+
+                    // Optional: Disable button or redirect after delay
+                     submitButton.disabled = true;
+                     setTimeout(() => {
+                         window.location.href = '@Url.Action("List", "TeacherPage")';
+                     }, 2000);
+
+                } catch (error) {
+                    // Show error message from API or generic error
+                    document.getElementById('errorSummaryEdit').textContent = error.message || 'An error occurred while updating.';
+                    document.getElementById('errorSummaryEdit').style.display = 'block';
+                     document.getElementById('successMessageEdit').style.display = 'none'; // Hide success message on error
+
+                     // Example: Highlight specific field if API error mentions it (more advanced)
+                     if (error.message && error.message.toLowerCase().includes('employee number')) {
+                         document.getElementById('employeeNumberEditError').textContent = 'This employee number might be taken.';
+                     }
+                }
+            });
+
+            // Initiative: Client-side validation function
+            function validateEditForm(teacher) {
+                 let isValid = true;
+                 clearEditErrors(); // Clear previous inline errors first
+
+                 // (Client) Error Handling on Update when the Teacher Name is empty
+                 if (!teacher.teacherFName) {
+                     document.getElementById('teacherFNameEditError').textContent = 'First name is required';
+                     isValid = false;
+                 }
+                 if (!teacher.teacherLName) {
+                     document.getElementById('teacherLNameEditError').textContent = 'Last name is required';
+                     isValid = false;
+                 }
+
+                 // (Client) Error Handling on Update when the Teacher Hire Date is in the future
+                 if (teacher.hireDate) {
+                     const hireDate = new Date(teacher.hireDate);
+                     const today = new Date();
+                     // Adjust today to midnight to compare dates correctly
+                     today.setHours(0, 0, 0, 0);
+                     // Adjust hireDate timezone if necessary (simple comparison assumes local timezone)
+                     const hireDateLocal = new Date(hireDate.getFullYear(), hireDate.getMonth(), hireDate.getDate());
+
+                     if (hireDateLocal > today) {
+                         document.getElementById('hireDateEditError').textContent = 'Hire date cannot be in the future';
+                         isValid = false;
+                     }
+                 } else {
+                      document.getElementById('hireDateEditError').textContent = 'Hire date is required'; // Assuming it's required
+                      isValid = false;
+                 }
+
+                 // (Client) Error Handling on Update when the Salary is less than 0
+                 if (isNaN(teacher.salary) || teacher.salary < 0) {
+                     document.getElementById('salaryEditError').textContent = 'Salary must be a non-negative number';
+                     isValid = false;
+                 }
+                 // Add other validations as needed (e.g., employee number format)
+                 if (!teacher.employeeNumber) {
+                     document.getElementById('employeeNumberEditError').textContent = 'Employee number is required';
+                      isValid = false;
+                 } else if (!/^T\d+$/.test(teacher.employeeNumber)) {
+                     document.getElementById('employeeNumberEditError').textContent = 'Must be "T" followed by digits';
+                     isValid = false;
+                 }
+
+
+                 return isValid;
+            }
+
+             function clearEditErrors() {
+                 document.getElementById('errorSummaryEdit').style.display = 'none';
+                 document.getElementById('successMessageEdit').style.display = 'none';
+                 document.getElementById('teacherFNameEditError').textContent = '';
+                 document.getElementById('teacherLNameEditError').textContent = '';
+                 document.getElementById('employeeNumberEditError').textContent = '';
+                 document.getElementById('hireDateEditError').textContent = '';
+                 document.getElementById('salaryEditError').textContent = '';
+                 document.getElementById('teacherWorkPhoneEditError').textContent = '';
+            }
+        });
+    </script>
+}
+
+<style>
+    .ajax-badge { background-color: #28a745; /* Green for Edit */ color: white; padding: 5px 10px; border-radius: 20px; font-size: 0.8em; vertical-align: middle; }
+    .ajax-form { background-color: #f8f9fa; border-left: 5px solid #28a745; padding: 20px; border-radius: 5px; }
+    .control-label { font-weight: bold; }
+    .form-control { width: 100%; padding: .375rem .75rem; font-size: 1rem; line-height: 1.5; border: 1px solid #ced4da; border-radius: .25rem; }
+    .text-danger { color: #dc3545; font-size: .875em; }
+    .mb-3 { margin-bottom: 1rem !important; }
+    .mt-3 { margin-top: 1rem !important; }
+    .btn { display: inline-block; font-weight: 400; text-align: center; vertical-align: middle; user-select: none; border: 1px solid transparent; padding: .375rem .75rem; font-size: 1rem; line-height: 1.5; border-radius: .25rem; transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out; }
+    .btn-success { color: #fff; background-color: #28a745; border-color: #28a745; }
+    .btn-secondary { color: #fff; background-color: #6c757d; border-color: #6c757d; }
+    .alert { padding: 15px; margin-bottom: 20px; border: 1px solid transparent; border-radius: 4px; }
+    .alert-danger { color: #721c24; background-color: #f8d7da; border-color: #f5c6cb; }
+    .alert-success { color: #155724; background-color: #d4edda; border-color: #c3e6cb; }
+</style> 

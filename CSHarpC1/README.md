@@ -14,6 +14,7 @@ An ASP.NET Core MVC application for managing teacher records in a school databas
 - `GET /api/TeacherAPI` - Retrieves all teachers
 - `GET /api/TeacherAPI/{id}` - Retrieves a specific teacher by ID
 - `POST /api/TeacherAPI` - Adds a new teacher
+- `PUT /api/TeacherAPI/{id}` - Updates an existing teacher
 - `DELETE /api/TeacherAPI/{id}` - Deletes a teacher by ID
 
 ## Web Pages
@@ -21,7 +22,10 @@ An ASP.NET Core MVC application for managing teacher records in a school databas
 - `/TeacherPage/List` - Displays a list of all teachers
 - `/TeacherPage/Show/{id}` - Displays details for a specific teacher
 - `/TeacherPage/Create` - Form to add a new teacher
+- `/TeacherPage/Edit/{id}` - Form to edit an existing teacher
 - `/TeacherPage/Delete/{id}` - Confirmation page for deleting a teacher
+- `/TeacherPage/AddAjax` - AJAX form to add a new teacher
+- `/TeacherPage/DeleteAjax/{id}` - AJAX confirmation page for deleting a teacher
 
 ## Database
 

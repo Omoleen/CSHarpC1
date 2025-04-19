@@ -66,5 +66,39 @@ const teacherApi = {
             console.error(`Error deleting teacher ${id}:`, error);
             throw error;
         }
+    },
+    
+    // Update an existing teacher
+    update: async function(id, teacher) {
+        try {
+            const response = await fetch(`/api/TeacherAPI/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(teacher)
+            });
+
+            if (!response.ok) {
+                // Try to parse error details from the response body
+                let errorData;
+                try {
+                     errorData = await response.json();
+                } catch (parseError) {
+                     // If parsing fails, use a generic message based on status
+                     if (response.status === 404) throw new Error(`Teacher with ID ${id} not found.`);
+                     if (response.status === 400) throw new Error('Invalid data submitted. Please check errors.');
+                     throw new Error(`Failed to update teacher. Status: ${response.status}`);
+                }
+                // Use the message from the API response if available
+                throw new Error(errorData.message || 'Failed to update teacher');
+            }
+
+            // PUT requests often return 204 No Content, so no body to parse on success
+            return true; // Indicate success
+        } catch (error) {
+            console.error(`Error updating teacher ${id}:`, error);
+            throw error; // Re-throw to be caught by the calling function
+        }
     }
 }; 
